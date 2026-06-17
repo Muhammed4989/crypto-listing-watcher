@@ -1,4 +1,4 @@
-name: Crypto Listing Watcher
+name: Crypto Watchers
 
 on:
   schedule:
@@ -6,7 +6,8 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  check:
+  listing-watcher:
+    name: Listing Watcher
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -14,22 +15,17 @@ jobs:
         with:
           node-version: '22'
       - name: Restore state cache
-        id: cache
         uses: actions/cache/restore@v4
         with:
           path: listing-state.json
           key: listing-state-v1
           fail-on-cache-miss: false
-      - name: Create config from secrets
+      - name: Create config
         run: |
           cat > listing-config.json <<'EOF'
-          {
-            "telegramBotToken": "${{ secrets.TELEGRAM_BOT_TOKEN }}",
-            "telegramChatId": "${{ secrets.TELEGRAM_CHAT_ID }}",
-            "targetVCs": ["Binance Labs", "a16z", "Pantera Capital", "Animoca Brands", "Paradigm", "Coinbase Ventures", "Dragonfly Capital", "Polychain Capital"]
-          }
+          {"telegramBotToken": "${{ secrets.TELEGRAM_BOT_TOKEN }}", "telegramChatId": "${{ secrets.TELEGRAM_CHAT_ID }}"}
           EOF
-      - name: Run watcher
+      - name: Run
         run: node listing-watcher.js
       - name: Save state cache
         uses: actions/cache/save@v4
@@ -37,3 +33,31 @@ jobs:
         with:
           path: listing-state.json
           key: listing-state-v1
+
+  mexc-scanner:
+    name: MEXC SMA20 Alert
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Restore state cache
+        uses: actions/cache/restore@v4
+        with:
+          path: mexc-alert-state.json
+          key: mexc-alert-state-v1
+          fail-on-cache-miss: false
+      - name: Create config
+        run: |
+          cat > listing-config.json <<'EOF'
+          {"telegramBotToken": "${{ secrets.TELEGRAM_BOT_TOKEN }}", "telegramChatId": "${{ secrets.TELEGRAM_CHAT_ID }}"}
+          EOF
+      - name: Run scanner
+        run: node mexc-alert.js
+      - name: Save state cache
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: mexc-alert-state.json
+          key: mexc-alert-state-v1
