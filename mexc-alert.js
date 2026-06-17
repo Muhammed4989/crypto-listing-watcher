@@ -125,9 +125,9 @@ function detectSetup(closes, highs, lows) {
 }
 
 async function scan() {
-  console.log('Fetching top USDT pairs from Binance...');
+  console.log('Fetching top USDT pairs from MEXC...');
   console.time('fetch-tickers');
-  const tickerData = await fetch('https://api.binance.com/api/v3/ticker/24hr');
+  const tickerData = await fetch('https://api.mexc.com/api/v3/ticker/24hr');
   console.timeEnd('fetch-tickers');
   console.log('Response length:', tickerData.length, 'bytes');
   let tickers;
@@ -142,11 +142,7 @@ async function scan() {
 
   const usdtPairs = tickers.filter(t =>
     t.symbol.endsWith('USDT') &&
-    !t.symbol.includes('UP') && !t.symbol.includes('DOWN') &&
-    !t.symbol.includes('BULL') && !t.symbol.includes('BEAR') &&
-    !['BKRW','EUR','GBP','JPY','BRL','TRY','DAI','TUSD','USDP',
-      'USDC','FDUSD','USDD','BFUSD','USD1','RLUSD','USDE',
-      'USTC','BUSD'].some(s => t.symbol.includes(s))
+    parseFloat(t.quoteVolume) > 0
   );
 
   const sorted = usdtPairs
@@ -158,14 +154,14 @@ async function scan() {
   let foundSignals = [];
 
   for (let i = 0; i < sorted.length; i++) {
-    const symbol = sorted[i].symbol;
-    const name = symbol.replace('USDT', '');
+    const rawSymbol = sorted[i].symbol;
+    const name = rawSymbol.replace('USDT', '');
     const vol = parseFloat(sorted[i].quoteVolume);
     const price = parseFloat(sorted[i].lastPrice);
     if (vol < 50000) continue;
 
     try {
-      const klineData = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=1d&limit=45`);
+      const klineData = await fetch(`https://api.mexc.com/api/v3/klines?symbol=${rawSymbol}&interval=1d&limit=45`);
       const klines = JSON.parse(klineData);
       if (klines.length < 22) continue;
 
