@@ -3,7 +3,7 @@ name: Crypto Listing Watcher
 on:
   schedule:
     - cron: '0 * * * *'
-  workflow_dispatch:
+  workflow_dispatch: {}
 
 jobs:
   check:
@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '20'
       - name: Create config from secrets
         run: |
           cat > listing-config.json <<'EOF'
