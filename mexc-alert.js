@@ -140,9 +140,13 @@ async function scan() {
     throw e;
   }
 
+  const stableFilter = ['USDC','USDD','TUSD','BUSD','DAI','FDUSD','USD1','USDE','BRL','EUR','GBP','JPY','TRY','AUD','CAD','CHF','USTC','BKRW','USDP','BFUSD','RLUSD'];
   const usdtPairs = tickers.filter(t =>
     t.symbol.endsWith('USDT') &&
-    parseFloat(t.quoteVolume) > 0
+    parseFloat(t.quoteVolume) > 0 &&
+    !stableFilter.some(s => t.symbol.includes(s)) &&
+    !t.symbol.includes('UP') && !t.symbol.includes('DOWN') &&
+    !t.symbol.includes('BULL') && !t.symbol.includes('BEAR')
   );
 
   const sorted = usdtPairs
@@ -199,21 +203,38 @@ async function main() {
       const newSignals = signals.filter(s => !state.alertedSetups.includes(s.symbol));
 
       if (newSignals.length > 0) {
-        let msg = '🚀 <b>SMA20 Setup Alert!</b>\n\n';
-        for (const s of newSignals) {
-          const declineMsg = s.declining ? ' (declining toward SMA20 ✅)' : '';
-          msg += `<b>${s.symbol}</b> — $${s.price}\n`;
-          msg += `  SMA20: ${s.pctAbove}% above | RSI: ${s.rsi}${declineMsg}\n`;
-          msg += `  Stop: $${s.stopPrice} | Target: $${s.targetPrice}\n\n`;
-          state.alertedSetups.push(s.symbol);
-        }
-        msg += '⚠️ Manual trade — not automated. Deposit to MEXC to trade.';
+        const top = newSignals.filter(s => s.declining).length > 0
+          ? newSignals.filter(s => s.declining).slice(0, 5)
+          : newSignals.slice(0, 10);
 
-        await sendTelegram(msg);
-        console.log(`Alerted ${newSignals.length} new setups.`);
+        let batches = [];
+        let msg = `🚀 <b>SMA20 Alerts (${newSignals.length} new)</b>\n\n`;
+        let count = 0;
+        for (const s of newSignals) {
+          const declineMsg = s.declining ? '⬇️' : '';
+          const line = `${declineMsg}<b>${s.symbol}</b> $${s.price} | ${s.pctAbove}% above | RSI ${s.rsi}\n  Stop $${s.stopPrice} → Target $${s.targetPrice}\n`;
+          if (msg.length + line.length > 3500) {
+            batches.push(msg + '\n⚠️ Manual trade.' + (newSignals.length > 10 ? `\n+${newSignals.length - count} more` : ''));
+            msg = line;
+          } else {
+            msg += line;
+          }
+          state.alertedSetups.push(s.symbol);
+          count++;
+        }
+        batches.push(msg + '\n⚠️ Manual trade.' + (count < newSignals.length ? `\n+${newSignals.length - count} more` : ''));
+        for (const batch of batches) {
+          await sendTelegram(batch);
+        }
+        console.log(`Alerted ${newSignals.length} new setups in ${batches.length} messages.`);
       } else {
-        const symbolList = signals.map(s => s.symbol).join(', ');
-        await sendTelegram(`📊 <b>MEXC Scan</b>\n${signals.length} setups active (already alerted): ${symbolList}`);
+        const best = signals.filter(s => s.declining).slice(0, 5);
+        let summary = `📊 <b>MEXC Scan</b>\n${signals.length} setups active`;
+        if (best.length > 0) {
+          summary += '\n⬇️ Declining toward SMA20:\n';
+          best.forEach(s => { summary += `• ${s.symbol} $${s.price} (${s.pctAbove}%)\n`; });
+        }
+        await sendTelegram(summary);
         console.log('No new setups beyond previously alerted ones.');
       }
     }
