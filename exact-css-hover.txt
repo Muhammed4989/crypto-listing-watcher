@@ -1,0 +1,1 @@
+﻿.btn-outline-dark:hover{border-color:var(--primary);color:var(--primary);background:var(--bg-alt)}

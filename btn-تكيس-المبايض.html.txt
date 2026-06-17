@@ -1,0 +1,1 @@
+﻿.btn-outline-dark{width:100%;text-align:center;padding:14px;font-size:0.92rem;border-radius:var(--radius-sm);display:block;border:2px solid var(--border);color:var(--text-light);background:transparent

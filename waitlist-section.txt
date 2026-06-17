@@ -1,0 +1,21 @@
+﻿قائمة الانتظار</a>
+      <nav class="nav" id="nav" aria-label="القائمة الرئيسية">
+        <ul class="nav-list">
+          <li><a href="../" class="nav-link">الرئيسية</a></li>
+          <li><a href="../%D8%A7%D9%84%D8%AF%D9%88%D8%B1%D8%A7%D8%AA" class="nav-link active">دوراتنا</a></li>
+          <li><a href="../%D8%A7%D9%84%D9%81%D8%B1%D9%8A%D9%82" class="nav-link">من نحن</a></li>
+          <li><a href="../%D8%A7%D8%AD%D8%AC%D8%B2-%D9%85%D9%88%D8%B9%D8%AF" class="nav-link">احجز موعد</a></li>
+          <li><a href="../%D8%A7%D9%84%D9%85%D8%AF%D9%88%D9%86%D8%A9" class="nav-link">المدونة</a></li>
+        </ul>
+      </nav>
+      <a href="../" class="logo" aria-label="رولا دايت - الصفحة الرئيسية">
+        <img src="/images/RULA-DIET-LOGO.webp" alt="شعار رولا دايت" width="180" height="60">
+      </a>
+      <button class="menu-toggle" id="menuToggle" aria-label="فتح القائمة" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<

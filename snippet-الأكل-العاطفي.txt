@@ -1,0 +1,9 @@
+﻿%B9%D8%A7%D9%84%D9%8A%D8%A9" class="btn-accent" target="_blank" rel="noopener">سجّلي في قائمة الانتظار</a>
+            <a href="../%D8%A7%D9%84%D8%AF%D9%88%D8%B1%D8%A7%D8%AA" class="btn-outline-dark">جميع البرامج</a>
+          </div>
+          <div class="sidebar-divider"></div>
+          <div class="sidebar-includes">
+            <h4>يشمل البرنامج</h4>
+            <ul class="includes-list">
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-widt

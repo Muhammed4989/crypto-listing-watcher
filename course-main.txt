@@ -1,0 +1,85 @@
+﻿<main>
+  <section class="page-hero">
+    <div class="container">
+      <span class="section-badge">التغذية الصحية</span>
+      <h1>كورس المسار الصحي</h1>
+      <p class="sub">دورة شاملة من 11 أسبوع تأخذك من أساسيات التغذية حتى تصميم نظامك الغذائي وتغيير عاداتك للأبد</p>
+      <div class="hero-meta">
+        <span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          11 أسبوع
+        </span>
+        <span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          42 درس
+        </span>
+        <span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <a href="/رولا-علوش" style="color:inherit;text-decoration:none">رولا علوش</a>
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="course-layout">
+      <div class="course-main">
+        <span class="section-badge section-title-badge">عن الدورة</span>
+        <h2 class="section-heading">طريقك لعلاقة صحية مع الغذاء</h2>
+        <p class="section-desc">كورس المسار الصحي هو دورة تغذية شاملة من 11 أسبوع صُممت لتأخذك خطوة بخطوة من فهم أساسيات الغذاء وضبط أهدافك الصحية، مروراً بتصميم نظامك الغذائي الخاص، وصولاً إلى التعامل مع الأكل العاطفي وبناء عادات صحية دائمة. الكورس مبني على العلم والتطبيق معاً — كل أسبوع يحمل معلومات ووسائل عملية تستخدمها مباشرة في حياتك.</p>
+
+        <h3 style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          هذا الكورس لك إذا كنت...
+        </h3>
+        <div class="who-for-grid">
+          <div class="who-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+            <span>تريد إنقاص وزنك بطريقة صحية ومستدامة</span>
+          </div>
+          <div class="who-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+            <span>جربت رجيمات كثيرة ولم تنجح معك على المدى البعيد</span>
+          </div>
+          <div class="who-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+            <span>تعاني من الأكل العاطفي أو إدمان الطعام</span>
+          </div>
+          <div class="who-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+            <span>تريد فهم التغذية بشكل علمي وتطبيقي دون تعقيد</span>
+          </div>
+          <div class="who-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+            <span>وزنك ثابت ولا تعرف السبب</span>
+          </div>
+          <div class="who-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+            <span>تريد بناء عادات صحية حقيقية وليس مجرد نظام مؤقت</span>
+          </div>
+        </div>
+
+        <div class="learn-section">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+            ماذا ستتعلم؟
+          </h3>
+          <ul class="learn-list">
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+              تحديد أهداف صحية ذكية وواقعية
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+              فهم المجموعات الغذائية والمغذيات الكبرى
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+              حساب السعرات وتصميم نظامك الغذائي الخاص
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+              مهارات التسوق الصحي وقراءة البطاقات الغذائية
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-
