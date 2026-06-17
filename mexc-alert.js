@@ -15,8 +15,14 @@ if (fs.existsSync(STATE_PATH)) {
 
 function fetch(url) {
   return new Promise((resolve, reject) => {
-    https.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, timeout: 15000 },
-      (res) => { let d = ''; res.on('data', c => d += c); res.on('end', () => resolve(d)); }
+    https.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, timeout: 30000 },
+      (res) => {
+        let d = '';
+        res.setEncoding('utf8');
+        res.on('data', c => d += c);
+        res.on('end', () => resolve(d));
+        res.on('error', reject);
+      }
     ).on('error', reject);
   });
 }
@@ -120,8 +126,19 @@ function detectSetup(closes, highs, lows) {
 
 async function scan() {
   console.log('Fetching top USDT pairs from Binance...');
+  console.time('fetch-tickers');
   const tickerData = await fetch('https://api.binance.com/api/v3/ticker/24hr');
-  const tickers = JSON.parse(tickerData);
+  console.timeEnd('fetch-tickers');
+  console.log('Response length:', tickerData.length, 'bytes');
+  let tickers;
+  try {
+    tickers = JSON.parse(tickerData);
+    if (!Array.isArray(tickers)) throw new Error('Response is not an array: ' + typeof tickers);
+  } catch (e) {
+    console.error('Failed to parse ticker data:', e.message);
+    console.error('Response preview:', tickerData.substring(0, 300));
+    throw e;
+  }
 
   const usdtPairs = tickers.filter(t =>
     t.symbol.endsWith('USDT') &&
