@@ -37,6 +37,7 @@ function fetch(url) {
       timeout: 15000
     }, (res) => {
       let data = '';
+      res.setEncoding('utf8');
       res.on('data', (c) => data += c);
       res.on('end', () => resolve(data));
     }).on('error', reject);
@@ -111,6 +112,25 @@ async function checkFundings() {
 }
 
 // ── 3. DexScreener New DEX Token Profiles ──
+async function fetchTokenInfo(address) {
+  try {
+    const data = await fetch(`https://api.dexscreener.com/latest/dex/token/${address}`);
+    const info = JSON.parse(data);
+    if (info.pairs && info.pairs.length > 0) {
+      const pair = info.pairs[0];
+      return {
+        symbol: pair.baseToken?.symbol || '?',
+        name: pair.baseToken?.name || '?',
+        chain: pair.chainId || '?',
+        price: pair.priceUsd ? '$' + parseFloat(pair.priceUsd).toFixed(8) : '?',
+        liquidity: pair.liquidity?.usd ? '$' + parseFloat(pair.liquidity.usd).toLocaleString() : '?',
+        url: pair.url || ''
+      };
+    }
+  } catch (e) {}
+  return null;
+}
+
 async function checkDexTrending() {
   try {
     const data = await fetch('https://api.dexscreener.com/token-profiles/latest/v1');
@@ -118,12 +138,26 @@ async function checkDexTrending() {
     if (!profiles || !Array.isArray(profiles)) return;
     const newOnes = profiles.filter(p => !state.seenMexc.includes(p.tokenAddress || p.url));
     if (newOnes.length > 0 && state.seenMexc.length > 0) {
+      // Fetch token details for first 10 (with rate limiting)
+      let details = [];
+      for (let i = 0; i < Math.min(newOnes.length, 10); i++) {
+        const info = await fetchTokenInfo(newOnes[i].tokenAddress);
+        if (info) details.push(info);
+        else {
+          details.push({
+            symbol: newOnes[i].tokenAddress?.slice(0, 6) + '...' || '?',
+            name: newOnes[i].tokenAddress?.slice(0, 6) + '...' || '?',
+            chain: newOnes[i].chainId || '?',
+            price: '?',
+            liquidity: '?',
+            url: newOnes[i].url || ''
+          });
+        }
+        await new Promise(r => setTimeout(r, 200));
+      }
       let msg = '⚡ <b>New DEX Tokens Spotted!</b>\n\n';
-      for (const p of newOnes.slice(0, 10)) {
-        const chain = p.chainId || '?';
-        const symbol = p.symbol || p.tokenSymbol || '?';
-        const name = p.name || p.tokenName || symbol;
-        msg += `• ${name} (${symbol}) | ${chain}\n`;
+      for (const d of details) {
+        msg += `• <b>${d.symbol}</b> — ${d.name} | ${d.chain}\n  ${d.price} | Liq: ${d.liquidity}\n`;
       }
       if (newOnes.length > 10) msg += `\n... and ${newOnes.length - 10} more`;
       await sendTelegram(msg);
