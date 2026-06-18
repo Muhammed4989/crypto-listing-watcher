@@ -65,15 +65,26 @@ function rsi(data, period) {
   return rsiVals;
 }
 
-function detectSetup(closes, highs, lows) {
+function ema(data, p) {
+  const k=2/(p+1), r=[data[0]];
+  for(let i=1;i<data.length;i++) r.push(data[i]*k + r[i-1]*(1-k));
+  return r;
+}
+
+function detectSetup(closes, highs, lows, volumes) {
   const n = closes.length;
   const sma20Vals = sma(closes, 20);
   const rsiVals = rsi(closes, 14);
+  const ema50 = ema(closes, 50);
   const lastIdx = sma20Vals.length - 1;
   const price = closes[lastIdx + 19];
   const sma20 = sma20Vals[lastIdx];
   const pctAbove = ((price - sma20) / sma20) * 100;
   const currentRSI = rsiVals[rsiVals.length - 1];
+  const currentEMA50 = ema50[ema50.length - 1];
+
+  // Regime filter: above EMA50 = bullish context
+  if (price < currentEMA50) return null;
 
   let wasBelow = false, crossIdx = -1;
   for (let i = 0; i < sma20Vals.length; i++) {
@@ -92,34 +103,49 @@ function detectSetup(closes, highs, lows) {
     if (pct3dAgo > pct1dAgo && pct1dAgo > pctAbove) decliningToSMA = true;
   }
 
-  const isSetup = crossedAbove && pctAbove >= 0 && pctAbove <= 4 && currentRSI >= 40 && currentRSI <= 65;
+  // Volume filter: volume > 20d average
+  if (volumes) {
+    const volSma = sma(volumes, 20);
+    const currentVol = volumes[volumes.length - 1];
+    const avgVol = volSma[volSma.length - 1];
+    if (avgVol && currentVol < avgVol * 0.8) return null;
+  }
+
+  // Entry: SMA20 breakout + retest, RSI 45-65 (tighter range)
+  const isSetup = crossedAbove && pctAbove >= 0 && pctAbove <= 4 && currentRSI >= 45 && currentRSI <= 65;
 
   if (!isSetup) return null;
 
-  const atrPeriod = 14;
+  // ATR-based stops and targets (backtested as best performers)
   const trs = [];
   for (let i = 1; i < closes.length; i++) {
     const h = highs[i], l = lows[i], pc = closes[i - 1];
     trs.push(Math.max(h - l, Math.abs(h - pc), Math.abs(l - pc)));
   }
-  const atr = trs.slice(-atrPeriod).reduce((a, b) => a + b, 0) / atrPeriod;
+  const atr = trs.slice(-14).reduce((a, b) => a + b, 0) / 14;
 
-  const stopPrice = sma20 * 0.975;
+  // Stop: 1.8× ATR below entry (avoids noise, wider than 1.5× for crypto volatility)
+  const stopPrice = price - 1.8 * atr;
+  // Target 1: 2× ATR (scalp)
+  const target1 = price + 2 * atr;
+  // Target 2: 4× ATR (swing)
+  const target2 = price + 4 * atr;
 
-  const swingHighs = [];
-  for (let i = 2; i < 25; i++) {
-    const idx = closes.length - i;
-    if (idx > 0 && idx < highs.length - 1 && highs[idx] > highs[idx - 1] && highs[idx] > highs[idx + 1])
-      swingHighs.push(highs[idx]);
-  }
-  const targetPrice = swingHighs.length > 0 ? swingHighs[swingHighs.length - 1] : price * 1.06;
+  const risk = ((price - stopPrice) / price) * 100;
+  const reward1 = ((target1 - price) / price) * 100;
+  const reward2 = ((target2 - price) / price) * 100;
 
   return {
     price, sma20, pctAbove: +pctAbove.toFixed(2),
     rsi: +currentRSI.toFixed(1),
+    ema50: +currentEMA50.toFixed(4),
     stopPrice: +stopPrice.toFixed(4),
-    targetPrice: +targetPrice.toFixed(4),
+    target1Price: +target1.toFixed(4),
+    target2Price: +target2.toFixed(4),
     atr: +atr.toFixed(4),
+    riskPct: +risk.toFixed(2),
+    reward1Pct: +reward1.toFixed(2),
+    reward2Pct: +reward2.toFixed(2),
     declining: decliningToSMA
   };
 }
@@ -173,7 +199,7 @@ async function scan() {
       const highs = klines.map(k => parseFloat(k[2]));
       const lows = klines.map(k => parseFloat(k[3]));
 
-      const setup = detectSetup(closes, highs, lows);
+      const setup = detectSetup(closes, highs, lows, volumes);
       if (setup) {
         setup.symbol = name;
         setup.price = price;
@@ -212,7 +238,7 @@ async function main() {
         let count = 0;
         for (const s of newSignals) {
           const declineMsg = s.declining ? '⬇️' : '';
-          const line = `${declineMsg}<b>${s.symbol}</b> $${s.price} | ${s.pctAbove}% above | RSI ${s.rsi}\n  Stop $${s.stopPrice} → Target $${s.targetPrice}\n`;
+          const line = `${declineMsg}<b>${s.symbol}</b> $${s.price} | ${s.pctAbove}% above SMA20 | RSI ${s.rsi}\n  Stop $${s.stopPrice} (-${s.riskPct}%) → TP1 $${s.target1Price} (+${s.reward1Pct}%) / TP2 $${s.target2Price} (+${s.reward2Pct}%)\n`;
           if (msg.length + line.length > 3500) {
             batches.push(msg + '\n⚠️ Manual trade.' + (newSignals.length > 10 ? `\n+${newSignals.length - count} more` : ''));
             msg = line;
@@ -232,7 +258,7 @@ async function main() {
         let summary = `📊 <b>MEXC Scan</b>\n${signals.length} setups active`;
         if (best.length > 0) {
           summary += '\n⬇️ Declining toward SMA20:\n';
-          best.forEach(s => { summary += `• ${s.symbol} $${s.price} (${s.pctAbove}%)\n`; });
+          best.forEach(s => { summary += `• ${s.symbol} $${s.price} | ${s.pctAbove}% | RSI ${s.rsi}\n  Stop $${s.stopPrice} → +${s.reward1Pct}% / +${s.reward2Pct}%\n`; });
         }
         await sendTelegram(summary);
         console.log('No new setups beyond previously alerted ones.');
