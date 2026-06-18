@@ -83,9 +83,6 @@ function detectSetup(closes, highs, lows, volumes) {
   const currentRSI = rsiVals[rsiVals.length - 1];
   const currentEMA50 = ema50[ema50.length - 1];
 
-  // Regime filter: above EMA50 = bullish context
-  if (price < currentEMA50) return null;
-
   let wasBelow = false, crossIdx = -1;
   for (let i = 0; i < sma20Vals.length; i++) {
     const c = closes[i + 19];
